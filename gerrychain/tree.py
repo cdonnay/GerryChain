@@ -15,9 +15,15 @@ def successors(h: nx.Graph, root: Any) -> Dict:
     return {a: b for a, b in nx.bfs_successors(h, root)}
 
 
-def random_spanning_tree(graph: nx.Graph) -> nx.Graph:
-    """ Builds a spanning tree chosen by Kruskal's method using random weights.
+def random_spanning_tree(graph: nx.Graph,
+                         county_code: str = "",
+                         intra_county_weight: float = 1) -> nx.Graph:
+    """ Builds a spanning tree chosen by Kruskal's method using random weights. We weight intra county edges more heavily
+    to reduce the number of county splits.
         :param graph: FrozenGraph
+        :param county_code: string, the identifier for the county of a node
+        :param intra_county_weight: float, weight given to edges within a county, larger values tend to reduce the number
+                                            of county splits. A value of 1 makes the chain county agnostic.
 
         Important Note:
         The key is specifically labelled "random_weight" instead of the previously
@@ -27,7 +33,18 @@ def random_spanning_tree(graph: nx.Graph) -> nx.Graph:
         something that we do not intend!!
     """
     for edge in graph.edge_indices:
-        graph.edges[edge]["random_weight"] = random.random()
+        if county_code != "":
+            county_x = graph.nodes[edge[0]][county_code]
+            county_y = graph.nodes[edge[1]][county_code]
+            intra = (county_x == county_y)
+
+            if intra:
+                graph.edges[edge]["random_weight"] = random.uniform(0, intra_county_weight)
+            else:
+                graph.edges[edge]["random_weight"] = random.uniform(0, 1)
+
+        else:
+            graph.edges[edge]["random_weight"] = random.random()
 
     spanning_tree = tree.maximum_spanning_tree(
         graph, algorithm="kruskal", weight="random_weight"
@@ -171,6 +188,33 @@ def find_balanced_edge_cuts_memoization(
     return cuts
 
 
+def find_inter_county_edge_cuts(cuts: List,
+                     graph: nx.Graph,
+                     county_code: str) -> List:
+    """ This function returns all possible edges to cut that are between two counties.
+    Used to reduce the number of counties split.
+
+    :param cuts: List, a list of edges that when cut leave 2 population balanced districts
+    :param graph: nx.Graph
+    :param county_code: str, the county identifier for a node of graph
+    """
+    inter_county = []
+
+    for cut in cuts:
+        edge = cut[0]
+        county_x = graph.nodes[edge[0]][county_code]
+        county_y = graph.nodes[edge[1]][county_code]
+
+        # if the edge is between counties
+        if county_x != county_y:
+            inter_county.append(cut)
+
+    if len(inter_county) != 0:
+        return (inter_county)
+
+    else:
+        return (cuts)
+
 def bipartition_tree(
     graph: nx.Graph,
     pop_col: str,
@@ -181,7 +225,9 @@ def bipartition_tree(
     spanning_tree_fn: Callable = random_spanning_tree,
     balance_edge_fn: Callable = find_balanced_edge_cuts_memoization,
     choice: Callable = random.choice,
-    max_attempts: Optional[int] = None
+    max_attempts: Optional[int] = None,
+    reduce_county_splits: bool  = False,
+    county_code: str = ""
 ) -> Set:
     """This function finds a balanced 2 partition of a graph by drawing a
     spanning tree and finding an edge to cut that leaves at most an epsilon
@@ -207,6 +253,8 @@ def bipartition_tree(
         tree is not provided
     :param choice: :func:`random.choice`. Can be substituted for testing.
     :param max_atempts: The max number of attempts that should be made to bipartition.
+    :param reduce_county_splits: bool, True if you want to try to reduce county splits.
+    :param county_code: str, the county identifier for a node in graph.
     """
     populations = {node: graph.nodes[node][pop_col] for node in graph.node_indices}
 
@@ -224,7 +272,10 @@ def bipartition_tree(
         possible_cuts = balance_edge_fn(h, choice=choice)
 
         if len(possible_cuts) != 0:
-            return choice(possible_cuts).subset
+            if reduce_county_splits:
+                return choice(find_inter_county_edge_cuts(possible_cuts, graph, county_code)).subset
+            else:
+                return choice(possible_cuts).subset
 
         restarts += 1
         attempts += 1

@@ -8,8 +8,6 @@ def always_accept(partition: Partition) -> bool:
 def half_accept(partition: Partition) -> bool:
     return random.random() < 0.5
 
-def test_accept(partition: Partition) -> bool:
-    return True
 
 def cut_edge_accept(partition: Partition) -> bool:
     """Always accepts the flip if the number of cut_edges increases.
