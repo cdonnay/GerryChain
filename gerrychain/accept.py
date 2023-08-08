@@ -5,9 +5,25 @@ from gerrychain.partition import Partition
 def always_accept(partition: Partition) -> bool:
     return True
 
-def half_accept(partition: Partition) -> bool:
-    return random.random() < 0.5
+def recom_county_accept(partition: Partition,
+                 ell: float = 1) -> bool:
+    """ Implements Metropolis/Hastings Hill climber for number of violation to Ohio county rules.
+    If the new map decreases the number of violations, move there.
+    If it increases, move with probability proportional to increase.
 
+    :param ell: float, the metropolis constant, larger values move distribution towards global max/min
+
+    Requires that partitions have the "ohio_county_violations" updater.
+    """
+
+    bound = 1.0
+
+    if partition.parent is not None:
+        parent_score = sum(partition.parent["ohio_county_violations"])
+        new_score = sum(partition["ohio_county_violations"])
+        bound = min(1,  ell**(parent_score-new_score))
+
+    return random.random() < bound
 
 def cut_edge_accept(partition: Partition) -> bool:
     """Always accepts the flip if the number of cut_edges increases.
