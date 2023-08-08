@@ -27,7 +27,9 @@ class Partition:
         'flips',
         'flows',
         'edge_flows',
-        '_cache'
+        '_cache',
+        # added in an attempt to compute rejection rates by markov chain
+        'rejection'
     )
 
     default_updaters = {"cut_edges": cut_edges}
@@ -51,6 +53,7 @@ class Partition:
 
         self._cache = dict()
         self.subgraphs = SubgraphView(self.graph, self.parts)
+        self.rejection = 0
 
     def _first_time(self, graph, assignment, updaters, use_default_updaters):
         if isinstance(graph, Graph):

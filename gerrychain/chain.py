@@ -64,6 +64,7 @@ class MarkovChain:
         self.initial_state = initial_state
         self.state = initial_state
 
+
     def __iter__(self) -> 'MarkovChain':
         self.counter = 0
         self.state = self.initial_state
@@ -74,8 +75,10 @@ class MarkovChain:
             self.counter += 1
             return self.state
 
+        rejection = 0
         while self.counter < self.total_steps:
             proposed_next_state = self.proposal(self.state)
+
             # Erase the parent of the parent, to avoid memory leak
             if self.state is not None:
                 self.state.parent = None
@@ -84,7 +87,12 @@ class MarkovChain:
                 if self.accept(proposed_next_state):
                     self.state = proposed_next_state
                 self.counter += 1
+                self.state.rejection = rejection
+                rejection = 0
                 return self.state
+            else:
+                rejection += 1
+
         raise StopIteration
 
     def __len__(self) -> int:
