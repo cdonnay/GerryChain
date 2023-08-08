@@ -30,7 +30,7 @@ def compute_county_ratios():
     return county_house_ratios, county_sen_ratios
 
 
-def compute_ohio_county_violations(partition,
+def compute_recom_ohio_county_violations(partition,
                            county_house_ratios,
                            county_sen_ratios,
                            county_split_updater="county_splits"):
@@ -90,11 +90,11 @@ def compute_ohio_county_violations(partition,
     return ([b_1_1, b_1_2, b_2])
 
 
-def ohio_county_violations(county_house_ratios,
+def ohio_recom_county_violations(county_house_ratios,
                            county_sen_ratios,
                            county_split_updater="county_splits"):
 
-    return(partial(compute_ohio_county_violations,
+    return(partial(compute_recom_ohio_county_violations,
                    county_house_ratios=county_house_ratios,
                            county_sen_ratios = county_sen_ratios,
                            county_split_updater=county_split_updater))

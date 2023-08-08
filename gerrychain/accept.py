@@ -19,8 +19,8 @@ def recom_county_accept(partition: Partition,
     bound = 1.0
 
     if partition.parent is not None:
-        parent_score = sum(partition.parent["ohio_county_violations"])
-        new_score = sum(partition["ohio_county_violations"])
+        parent_score = sum(partition.parent["recom_ohio_county_violations"])
+        new_score = sum(partition["recom_ohio_county_violations"])
         bound = min(1,  ell**(parent_score-new_score))
 
     return random.random() < bound

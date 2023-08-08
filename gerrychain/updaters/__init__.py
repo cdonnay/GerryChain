@@ -10,7 +10,7 @@ from .county_splits import CountySplit, county_splits
 from .cut_edges import cut_edges, cut_edges_by_part
 from .election import Election
 from .flows import compute_edge_flows, flows_from_changes
-from .ohio_county_violations import compute_county_ratios, ohio_county_violations
+from .ohio_county_violations import compute_county_ratios, ohio_recom_county_violations
 from .tally import DataTally, Tally
 from .spanning_trees import num_spanning_trees
 
@@ -31,6 +31,6 @@ __all__ = [
     "compute_edge_flows",
     "Election",
     "num_spanning_trees",
-    "ohio_county_violations",
+    "ohio_recom_county_violations",
     "compute_county_ratios"
 ]
