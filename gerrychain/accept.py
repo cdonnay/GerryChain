@@ -1,6 +1,6 @@
 from .random import random
 from gerrychain.partition import Partition
-
+from typing import Callable
 
 def always_accept(partition: Partition) -> bool:
     return True
@@ -45,7 +45,29 @@ def recom_county_accept(partition: Partition,
 
     return random.random() < bound
 
+def simulated_annealing_recom_county_accept(partition: Partition,
+                 temperature_schedule: Callable,
+                 counter: int) -> bool:
+    """ Implements Simulated Annealing  for number of violation to Ohio county rules.
+    If the new map decreases the number of violations, move there.
+    If it increases, move with probability proportional to increase.
 
+    :param temperature_schedule: Callable, the annealing schedule, takes in counter, spits out ell value
+    :param counter: int, the counter of the markov chain
+
+    Requires that partitions have the "recom_ohio_county_violations" updater.
+    """
+
+    bound = 1.0
+
+    ell = temperature_schedule(counter)
+
+    if partition.parent is not None:
+        parent_score = sum(partition.parent["recom_ohio_county_violations"])
+        new_score = sum(partition["recom_ohio_county_violations"])
+        bound = min(1,  ell**(parent_score-new_score))
+
+    return random.random() < bound
 
 def cut_edge_accept(partition: Partition) -> bool:
     """Always accepts the flip if the number of cut_edges increases.

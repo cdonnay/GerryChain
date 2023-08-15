@@ -88,8 +88,15 @@ class MarkovChain:
                 self.state.parent = None
 
             if self.is_valid(proposed_next_state):
-                if self.accept(proposed_next_state):
-                    self.state = proposed_next_state
+
+                # for simulated annealing, the accept function needs the schedule and counter
+                if self.temperature_schedule != None:
+                    if self.accept(proposed_next_state, self.temperature_schedule, self.counter):
+                        self.state = proposed_next_state
+                else:
+                    # not simulated annealing
+                    if self.accept(proposed_next_state):
+                        self.state = proposed_next_state
                 self.counter += 1
                 self.state.rejection = rejection
                 rejection = 0
