@@ -45,6 +45,8 @@ def recom_county_accept(partition: Partition,
 
     return random.random() < bound
 
+
+
 def cut_edge_accept(partition: Partition) -> bool:
     """Always accepts the flip if the number of cut_edges increases.
     Otherwise, uses the Metropolis criterion to decide.

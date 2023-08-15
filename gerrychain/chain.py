@@ -26,7 +26,8 @@ class MarkovChain:
         constraints: Union[Iterable[Callable], Validator, Iterable[Bounds], Callable],
         accept: Callable,
         initial_state: Optional[Partition],
-        total_steps: int
+        total_steps: int,
+        temperature_schedule: Callable = None
     ) -> None:
         """
         :param proposal: Function proposing the next state from the current state.
@@ -38,6 +39,7 @@ class MarkovChain:
             Metropolis-Hastings acceptance rule, this is where you would implement it.
         :param initial_state: Initial :class:`gerrychain.partition.Partition` class.
         :param total_steps: Number of steps to run.
+        :param temperature_schedule: a function that takes in the counter and returns a temp, for simulated annealing
 
         """
         if callable(constraints):
@@ -63,6 +65,8 @@ class MarkovChain:
         self.total_steps = total_steps
         self.initial_state = initial_state
         self.state = initial_state
+        # for implementing simulated annealing
+        self.temperature_schedule = temperature_schedule
 
 
     def __iter__(self) -> 'MarkovChain':
