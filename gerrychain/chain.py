@@ -43,7 +43,7 @@ class MarkovChain:
 
         """
         if callable(constraints):
-            is_valid = constraints
+            is_valid = Validator([constraints])
         else:
             is_valid = Validator(constraints)
 
