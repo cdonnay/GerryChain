@@ -68,6 +68,7 @@ class Partition:
 
         self.assignment = get_assignment(assignment, graph)
 
+
         if set(self.assignment) != set(graph):
             raise KeyError("The graph's node labels do not match the Assignment's keys")
 

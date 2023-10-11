@@ -137,7 +137,8 @@ def compute_recom_ohio_county_violations(partition,
     c_s_assign = {c: list(partition[county_split_updater][c][2]) for c in county_house_ratios.keys()}
 
     # keys are senate districts, values are counties in that senate district
-    s_c_assign = {s: [] for s in range(33)}
+    sen_district_nums = list(set(partition.assignment.values()))
+    s_c_assign = {s: [] for s in sen_district_nums}
 
     for county, s_list in c_s_assign.items():
         for s_dist in s_list:
