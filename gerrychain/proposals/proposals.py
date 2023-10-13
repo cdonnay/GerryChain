@@ -2,7 +2,7 @@ from ..random import random
 
 
 def swap(partition):
-    """Swap three random nodes, chosen with replacement, between their districts.
+    """Swap two random nodes, chosen with replacement, between their districts.
 
     Does NOT validate whether or not this is a valid partition, that is done by the constraints function.
 
@@ -10,16 +10,15 @@ def swap(partition):
     :return: a proposed next `~gerrychain.Partition`
     """
 
-    # choose three random nodes with replacement
-    node_1, node_2, node_3 = random.choices(tuple(partition.graph), k=3)
+    # choose two random nodes with replacement
+    node_1, node_2 = random.choices(tuple(partition.graph), k=2)
 
     # find what districts nodes belong to
     district_1 = partition.assignment[node_1]
     district_2 = partition.assignment[node_2]
-    district_3 = partition.assignment[node_3]
 
-    # the new partition swaps the three nodes
-    return partition.flip({node_1: district_2, node_2: district_3, node_3: district_1})
+    # the new partition swaps the two nodes
+    return partition.flip({node_1: district_2, node_2: district_1})
 
 def propose_any_node_flip(partition):
     """Flip a random node (not necessarily on the boundary) to a random part
